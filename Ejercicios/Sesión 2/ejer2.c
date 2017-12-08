@@ -51,7 +51,7 @@ mode_t old_mask;
 struct stat atributos;
 
 //Leemos las entradas del directorio.
-printf("Nombre del archivo");
+
 while( (direntp=readdir(dirp)) != NULL){
 
     if(stat(direntp->d_name,&atributos) < 0) {
@@ -62,9 +62,9 @@ while( (direntp=readdir(dirp)) != NULL){
 	old_mask=atributos.st_mode;
 
 	if( (chmod(direntp->d_name, mask)) < 0 )
-		printf("%s: %d %d", direntp->d_name, errno, old_mask);
+		printf("\n%s: %d %d %s", direntp->d_name, errno, old_mask, "error");
 	else
-		printf("%s: %d %d", direntp->d_name, old_mask, atributos.st_mode); 
+		printf("\n%s: %d %d", direntp->d_name, old_mask, atributos.st_mode); 
 }
 closedir(dirp);
 }
