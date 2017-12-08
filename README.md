@@ -102,10 +102,66 @@ S_ISSOCK(st_mode) Verdadero si es un socket
 `int fchmod(int fildes, mode_t mode); #Para archivos abiertos con open.`
 * Return: En caso de éxito, devuelve 0. En caso de error, -1 y se asigna a la variable errno un valor adecuado.
 
+| mode_t mode| mask | Descripción|
+|:-----:|:----:|:----------------------|
+|S_ISUID| 04000 |activar la asignación del UID del propietario al UID efectivo del proceso que ejecute el archivo.|
+|S_ISGID |02000| activar la asignación del GID del propietario al GID efectivo del proceso que ejecute el archivo.|
+|S_ISVTX |01000| activar sticky bit. En directorios significa un borrado restringido, es decir, un proceso no privilegiado no puede borrar o renombrar archivos del directorio salvo que tenga permiso de escritura y sea propietario. Por ejemplo se utiliza en el directorio /tmp.
+|S_IRWXU |00700| user (propietario del archivo) tiene permisos de lectura, escritura y ejecución|
+|S_IRUSR |00400 |lectura para el propietario (= S_IREAD no POSIX)|
+|S_IWUSR| 00200| escritura para el propietario (= S_IWRITE no POSIX)|
+|S_IXUSR |00100| ejecución/búsqueda para el propietario (=S_IEXEC no POSIX)|
+|S_IRWXG |00070| group tiene permisos de lectura, escritura y ejecución|
+|S_IRGRP |00040 |lectura para el grupo|
+|S_IWGRP |00020| escritura para el grupo|
+|S_IXGRP |00010 |ejecución/búsqueda para el grupo|
+|S_IRWXO |00007| other tienen permisos de lectura, escritura y ejecución|
+|S_IROTH |00004 |lectura para otros|
+|S_IWOTH |00002| escritura para otros|
+|S_IXOTH |00001 |ejecución/búsqueda para otros|
 
 
 
+#### Funciones de manejo de directorios.
 
+* opendir: se le pasa el pathname del directorio a abrir, y devuelve un puntero a la estructura de
+tipo DIR, llamada stream de directorio. El tipo DIR está definido en <dirent.h>.
+* readdir: lee la entrada donde esté situado el puntero de lectura de un directorio ya abierto cuyo stream se pasa a la función. Después de la lectura adelanta el puntero una posición. Devuelve la entrada leída a través de un puntero a una estructura (struct dirent), o devuelve NULL si llega al final del directorio o se produce un error.
+* closedir: cierra un directorio, devolviendo 0 si tiene éxito, en caso contrario devuelve -1.
+* seekdir: permite situar el puntero de lectura de un directorio (se tiene que usar en combinación con telldir).
+* telldir: devuelve la posición del puntero de lectura de un directorio.
+* rewinddir: posiciona el puntero de lectura al principio del directorio.
+
+Declaraciones: 
+~~~~~
+DIR *opendir(char *dirname)
+DIR *opendir(int fd)
+struct dirent *readdir(DIR *dirp)
+int closedir(DIR *dirp)
+void seekdir(DIR *dirp, log loc)
+long telldir(DIR *dirp)
+void rewinddir(DIR *dirp)
+
+typedef struct _dirdesc {
+	int dd_fd;
+	long dd_loc;
+	long dd_size;
+	long dd_bbase;
+	long dd_entno;
+	long dd_bsize;
+	char *dd_buf;
+} DIR;
+//La estructura struct dirent conforme a POSIX 2.1 es la siguiente:
+#include <sys/types.h>
+#include <dirent.h>
+struct dirent {
+	long d_ino; /* número i-nodo */
+	char d_name[256]; /* nombre del archivo */
+	off_t          d_off;       /* offset to the next dirent */
+	unsigned short d_reclen;    /* length of this record */
+	unsigned char  d_type;      /* type of file; not supported
+};
+~~~~~
 
 
 
