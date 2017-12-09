@@ -23,49 +23,34 @@ información en la línea de salida:
 #include<errno.h>
 #include<sys/types.h>
 #include<dirent.h>
+#include <ftw.h>
+
+long long int sum=0;
+int n=0;
+
+
+int visitar(const char* path, const struct stat* stat, int flags, struct FTW* ftw) 
+{
+	if( stat->st_mode & S_IXOTH ){
+		if( stat->st_mode & S_IXGRP ){
+			printf("Path: %s : %lld\n",path, stat->st_ino);
+			sum+=stat->st_size;
+			n+=1;
+		}
+	}
+	return 0;
+}
 
 int main(int argc, char *argv[])
 {
 
-if( argc != 3 ){
-	printf("\nSintaxis incorrecta\n\n");
-	exit(-1);
+if (nftw(argc >= 2 ? argv[1] : ".", visitar, 10, 0) != 0) {
+	perror("nftw");
 }
 
+printf("Existen %d archivos regulares con permiso x para grupo y otros\n",n);
+printf("El tamaño total ocupado por dichos archivos es %lld bytes\n", sum);
 
-//Declaramos las variables necesarias.
-DIR * dirp;
-struct dirent * direntp;
-//Abrimos el directorio.
-dirp=opendir(argv[1]);
-if( dirp==NULL ){
-	printf("Error: no se pudo abrir el directorio.\n");
-	exit(-1);
-}
 
-char * endptr;
 
-mode_t mask=strtol(argv[2], &endptr, 10);
-mode_t old_mask;
-
-struct stat atributos;
-
-//Leemos las entradas del directorio.
-
-while( (direntp=readdir(dirp)) != NULL){
-
-    if(stat(direntp->d_name,&atributos) < 0) {
-        printf("\nError al intentar acceder a los atributos de %s\n", direntp->d_name);
-        perror("\nError en stat\n");
-        exit(-1);
-    }
-	old_mask=atributos.st_mode;
-
-	//printf("%s\n", direntp->d_name);
-	if( (chmod(direntp->d_name, mask)) < 0 )
-		printf("\n%s: %d %d %s", direntp->d_name, errno, old_mask, "error");
-	else
-		printf("\n%s: %d %d", direntp->d_name, old_mask, atributos.st_mode); 
-}
-closedir(dirp);
 }

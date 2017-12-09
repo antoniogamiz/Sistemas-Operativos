@@ -55,13 +55,12 @@ struct stat atributos;
 while( (direntp=readdir(dirp)) != NULL){
 
     if(stat(direntp->d_name,&atributos) < 0) {
-        printf("\nError al intentar acceder a los atributos de %s\n", direntp->d_name);
-        perror("\nError en stat\n");
+        printf("\nError al intentar acceder a los atributos de %s", direntp->d_name);
+        perror("\nError en stat");
         exit(-1);
     }
 	old_mask=atributos.st_mode;
 
-	//printf("%s\n", direntp->d_name);
 	if( (chmod(direntp->d_name, mask)) < 0 )
 		printf("\n%s: %d %d %s", direntp->d_name, errno, old_mask, "error");
 	else

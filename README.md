@@ -163,9 +163,33 @@ struct dirent {
 };
 ~~~~~
 
+###### Orden nftw
 
+`int nftw (const char *dirpath, int (*func) (const char *pathname, const struct stat *statbuf, int typeflag, struct FTW *ftwbuf), int nopenfd, int flags);`
 
+|flag|Descripción|
+|:--------:|:----------------------|
+|FTW_DIR |Realiza un chdir (cambia de directorio) en cada directorio antes de procesar sucontenido. Se utiliza cuando func debe realizar algún trabajo en el directorio en el que el archivo especificado por su argumento pathname reside.|
+|FTW_DEPTH |Realiza un recorrido postorden del árbol. Esto significa que nftw llama a func sobre todos los archivos (y subdirectorios) dentro del directorio antes de ejecutar func sobre el propio directorio.|
+|FTW_MOUNT| No cruza un punto de montaje.|
+|FTW_PHYS|Indica a nftw que nos desreferencie los enlaces simbólicos. En su lugar, un enlace simbólico se pasa a func como un valor typedflag de FTW_SL.|
 
+|typeflag|Descripción|
+|:--------:|:----------------------|
+|FTW_D |Es un directorio|
+|FTW_DNR |Es un directorio que no puede leerse (no se lee sus descendientes).|
+|FTW_DP |Estamos haciendo un recorrido posorden de un directorio, y el ítem actual es un directorio cuyos archivos y subdirectorios han sido recorridos.|
+|FTW_F |Es un archivo de cualquier tipo diferente de un directorio o enlace simbólico.|
+|FTW_NS |stat ha fallado sobre este archivo, probablemente debido a restricciones de permisos. El valor statbuf es indefinido.|
+|FTW_SL |Es un enlace simbólico. Este valor se retorno solo si nftw se invoca con FTW_PHYS|
+|FTW_SLN |El ítem es un enlace simbólico perdido. Este se da cuando no se especifica FTW_PHYS.|
+
+~~~
+struct FTW {
+	int base; /* Desplazamiento de la parte base del pathname */
+	int level; /*Profundidad del archivo dentro recorrido del arbol */
+};
+~~~
 
 
 

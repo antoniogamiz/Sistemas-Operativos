@@ -27,7 +27,7 @@ información en la línea de salida:
 int main(int argc, char *argv[])
 {
 
-if( argc != 3 ){
+if( argc != 2 ){
 	printf("\nSintaxis incorrecta\n\n");
 	exit(-1);
 }
@@ -36,6 +36,7 @@ if( argc != 3 ){
 //Declaramos las variables necesarias.
 DIR * dirp;
 struct dirent * direntp;
+
 //Abrimos el directorio.
 dirp=opendir(argv[1]);
 if( dirp==NULL ){
@@ -43,29 +44,33 @@ if( dirp==NULL ){
 	exit(-1);
 }
 
-char * endptr;
-
-mode_t mask=strtol(argv[2], &endptr, 10);
-mode_t old_mask;
 
 struct stat atributos;
 
 //Leemos las entradas del directorio.
 
+long long int sum=0;
+int n=0;
+printf("Los i-nodos son: \n");
 while( (direntp=readdir(dirp)) != NULL){
+	//Cargamos el stat de cada archivo del directorio.
+	if(stat(direntp->d_name,&atributos) < 0) {
+		printf("\nError al intentar acceder a los atributos de %s", direntp->d_name);
+		perror("\nError en stat");
+		exit(-1);
+	}
 
-    if(stat(direntp->d_name,&atributos) < 0) {
-        printf("\nError al intentar acceder a los atributos de %s\n", direntp->d_name);
-        perror("\nError en stat\n");
-        exit(-1);
-    }
-	old_mask=atributos.st_mode;
-
-	//printf("%s\n", direntp->d_name);
-	if( (chmod(direntp->d_name, mask)) < 0 )
-		printf("\n%s: %d %d %s", direntp->d_name, errno, old_mask, "error");
-	else
-		printf("\n%s: %d %d", direntp->d_name, old_mask, atributos.st_mode); 
+	if( atributos.st_mode & S_IXOTH ){
+		if( atributos.st_mode & S_IXGRP ){
+			printf("%s : %lld\n",direntp->d_name,direntp->d_ino);
+			sum+=atributos.st_size;
+			n+=1;	
+		}	
+	}
 }
+printf("Existen %d archivos regulares con permiso x para grupo y otros\n",n);
+printf("El tamaño total ocupado por dichos archivos es %lld bytes\n", sum);
+
+
 closedir(dirp);
 }
