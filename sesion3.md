@@ -11,3 +11,15 @@ uid_t geteuid(void); // devuelve el identificador de usuario efectivo del proces
 gid_t getgid(void); // devuelve el identificador de grupo real del proceso que la invoca.
 gid_t getegid(void); // devuelve el identificador de grupo efectivo delproceso que la invoca.
 ~~~
+##### fork()
+
+`pid_t fork(void);`
+
+* Return: 0 si es el hijo quien ejecuta, pid si es el padre.
+
+##### Unbuffered stdout
+~~~
+if(setvbuf(stdout,NULL,_IONBF,0)) {
+	perror("\nError en setvbuf");
+}
+~~~

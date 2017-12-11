@@ -45,7 +45,7 @@ if( dirp==NULL ){
 
 char * endptr;
 
-mode_t mask=strtol(argv[2], &endptr, 10);
+mode_t mask=strtol(argv[2], &endptr, 8);
 mode_t old_mask;
 
 struct stat atributos;
@@ -62,7 +62,7 @@ while( (direntp=readdir(dirp)) != NULL){
 	old_mask=atributos.st_mode;
 
 	//printf("%s\n", direntp->d_name);
-	if( (chmod(direntp->d_name, mask)) < 0 )
+	if( (chmod(direntp->d_name, atributos.st_mode, mask)) < 0 )
 		printf("\n%s: %d %d %s", direntp->d_name, errno, old_mask, "error");
 	else
 		printf("\n%s: %d %d", direntp->d_name, old_mask, atributos.st_mode); 
